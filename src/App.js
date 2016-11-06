@@ -4,27 +4,41 @@ import './App.css';
 import ContactForm from './components/ContactForm';
 import Immutable from 'immutable';
 
-class Contact extends Immutable.Record({
-  firstName: '',
-  lastName: '',
-  _errors: Immutable.Map()
-}) {
-  hasError(field) {
-    return this.hasIn(['_errors', field]);
-  }
+const classes = [];
 
-  getError(field) {
-    return this.getIn(['_errors', field]);
-  }
+const Entity = {
+  define (name, defaultValues = {}) {
+    const BaseClass = Immutable.Record({
+      ...defaultValues,
+      _errors: Immutable.Map()
+    }, `Base${name}`);
 
-  bindErrors(errors) {
-    return this.set('_errors', Immutable.Map(errors));
+    classes[name] = class extends BaseClass {
+      hasError(field) {
+        return this.hasIn(['_errors', field]);
+      }
+
+      getError(field) {
+        return this.getIn(['_errors', field]);
+      }
+
+      bindErrors(errors) {
+        return this.set('_errors', Immutable.Map(errors));
+      }
+    }
+
+    this[name] = (values) => new classes[name](values);
   }
 }
 
+Entity.define('Contact', {
+  firstName: '-',
+  lastName: '-'
+});
+
 class App extends Component {
   state = {
-    contact: new Contact({
+    contact: Entity.Contact({
       firstName: 'Alex'
     })
   }
