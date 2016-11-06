@@ -2,32 +2,40 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import ContactForm from './components/ContactForm';
-import Immutable from 'immutable';
+//import Immutable from 'immutable';
+import { Map as ImmutableMap } from 'extendable-immutable'
 
-const classes = [];
+class ImmutableEntity extends ImmutableMap {
+  constructor(values, errors) {
+    console.log('constructor called');
+    super(values);
+    this._errors = {...errors};
+  }
+
+  getId() {
+    return this.get('@id');
+  }
+
+  hasError(field) {
+    return this._errors[field] !== undefined;
+  }
+
+  getError(field) {
+    return this._errors[field];
+  }
+
+  bindErrors(errors) {
+    console.log('aze', this);
+    return new this.constructor(this, errors);
+  }
+}
 
 const Entity = {
   define (name, defaultValues = {}) {
-    const BaseClass = Immutable.Record({
+    this[name] = (values) => new ImmutableEntity({
       ...defaultValues,
-      _errors: Immutable.Map()
-    }, `Base${name}`);
-
-    classes[name] = class extends BaseClass {
-      hasError(field) {
-        return this.hasIn(['_errors', field]);
-      }
-
-      getError(field) {
-        return this.getIn(['_errors', field]);
-      }
-
-      bindErrors(errors) {
-        return this.set('_errors', Immutable.Map(errors));
-      }
-    }
-
-    this[name] = (values) => new classes[name](values);
+      ...values
+    });
   }
 }
 

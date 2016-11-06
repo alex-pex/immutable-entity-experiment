@@ -26,6 +26,7 @@ class ContactForm extends Component {
   handleChange = (event) => {
     const { contact, onChange } = this.props;
     const { target } = event;
+    console.log(contact, contact.set('firstName', 'Toto'));
     onChange(contact.set(target.name, target.value));
   }
 
