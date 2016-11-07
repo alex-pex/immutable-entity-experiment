@@ -6,27 +6,20 @@ import ContactForm from './components/ContactForm';
 import { Map as ImmutableMap } from 'extendable-immutable'
 
 class ImmutableEntity extends ImmutableMap {
-  constructor(values, errors) {
-    console.log('constructor called');
-    super(values);
-    this._errors = {...errors};
-  }
-
   getId() {
     return this.get('@id');
   }
 
   hasError(field) {
-    return this._errors[field] !== undefined;
+    return this.hasIn(['@errors', field]);
   }
 
   getError(field) {
-    return this._errors[field];
+    return this.getIn(['@errors', field]);
   }
 
   bindErrors(errors) {
-    console.log('aze', this);
-    return new this.constructor(this, errors);
+    return errors ? this.set('@errors', new ImmutableMap(errors)) : this.remove('@errors');
   }
 }
 
